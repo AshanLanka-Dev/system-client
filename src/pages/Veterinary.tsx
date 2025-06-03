@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Star, Video, MessageSquare, Youtube, Facebook, Instagram, Twitter } from 'lucide-react';
+import { Star, Video, MessageSquare, Youtube, Facebook, Instagram, Twitter, Calendar, Award, Clock, MapPin } from 'lucide-react';
 import { format } from 'date-fns';
 import {useEffect, useState} from "react";
 
@@ -51,7 +51,7 @@ function Veterinary() {
             rating: 4.9,
             availability: 'Mon-Fri, 9AM-5PM',
             education: 'DVM from Cornell University',
-            description: 'Specialized in treating small animals with a focus on preventive care and internal medicine.',
+            description: 'Specialized in treating small animals with a focus on preventive care and internal medicine. Dr. Wilson brings compassionate care and cutting-edge medical expertise to ensure your pets receive the best possible treatment.',
         },
         {
             id: 2,
@@ -62,7 +62,7 @@ function Veterinary() {
             rating: 4.8,
             availability: 'Wed-Sun, 10AM-6PM',
             education: 'DVM from UC Davis',
-            description: 'Expert in emergency and critical care with extensive experience in surgical procedures.',
+            description: 'Expert in emergency and critical care with extensive experience in surgical procedures. Dr. Lanka is dedicated to providing life-saving treatments and has successfully handled numerous complex emergency cases.',
         },
         // {
         //     id: 3,
@@ -159,39 +159,80 @@ function Veterinary() {
                 </p>
             </div>
 
-            {/* Doctor Cards */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-8 mb-16">
-                {doctors.map(doctor => (
-                    <div key={doctor.id} className="bg-white rounded-xl shadow-lg overflow-hidden">
-                        <div className="relative">
-                            <img
-                                src={doctor.image}
-                                alt={doctor.name}
-                                className="w-full h-64 object-cover"
-                            />
-                            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                                <div className="flex items-center text-white">
-                                    <Star className="fill-yellow-400 stroke-yellow-400 w-4 h-4" />
-                                    <span className="ml-1">{doctor.rating}</span>
+            {/* Doctor Cards - Single Column Layout */}
+            <div className="space-y-8 mb-16">
+                {doctors.map((doctor, index) => (
+                    <div key={doctor.id} className="overflow-hidden hover:shadow-2xl transition-all duration-300 border bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20">
+                        <div className={`flex flex-col lg:flex-row ${index % 2 === 1 ? 'lg:flex-row-reverse' : ''}`}>
+                            {/* Doctor Image */}
+                            <div className="lg:w-2/5 relative">
+                                <img
+                                    src={doctor.image}
+                                    alt={doctor.name}
+                                    className="w-full h-80 lg:h-full object-cover"
+                                />
+                                <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 flex items-center shadow-lg">
+                                    <Star className="fill-yellow-400 stroke-yellow-400 w-4 h-4 mr-1" />
+                                    <span className="text-sm font-semibold text-gray-800">{doctor.rating}</span>
+                                </div>
+                                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent h-20"></div>
+                            </div>
+
+                            {/* Doctor Details */}
+                            <div className="lg:w-3/5 p-8 lg:p-10 flex flex-col justify-center">
+                                <div className="mb-6">
+                                    <h3 className="text-3xl font-bold text-gray-800 mb-2">{doctor.name}</h3>
+                                    <div className="flex items-center mb-4">
+                                        <div className="bg-primary/10 text-primary px-4 py-2 rounded-full text-lg font-semibold">
+                                            {doctor.specialization}
+                                        </div>
+                                    </div>
+                                    <p className="text-gray-600 text-lg leading-relaxed mb-6">
+                                        {doctor.description}
+                                    </p>
+                                </div>
+
+                                {/* Professional Details Grid */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                                    <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                                        <Award className="w-5 h-5 text-primary flex-shrink-0" />
+                                        <div>
+                                            <p className="text-sm text-gray-500 font-medium">Experience</p>
+                                            <p className="text-gray-800 font-semibold">{doctor.experience}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                                        <MapPin className="w-5 h-5 text-primary flex-shrink-0" />
+                                        <div>
+                                            <p className="text-sm text-gray-500 font-medium">Education</p>
+                                            <p className="text-gray-800 font-semibold">{doctor.education}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg md:col-span-2">
+                                        <Clock className="w-5 h-5 text-primary flex-shrink-0" />
+                                        <div>
+                                            <p className="text-sm text-gray-500 font-medium">Availability</p>
+                                            <p className="text-gray-800 font-semibold">{doctor.availability}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Action Button */}
+                                <div className="flex space-x-4">
+                                    <button
+                                        onClick={() => navigate('/consultation')}
+                                        className="flex-1 bg-primary text-white py-3 px-6 rounded-xl hover:bg-primaryHover transition-colors flex items-center justify-center space-x-2 font-semibold shadow-lg hover:shadow-xl"
+                                    >
+                                        <MessageSquare size={20} />
+                                        <span>Book Consultation</span>
+                                    </button>
+                                    <button className="px-6 py-3 border-2 border-primary text-primary rounded-xl hover:bg-primary hover:text-white transition-colors font-semibold">
+                                        View Profile
+                                    </button>
                                 </div>
                             </div>
-                        </div>
-                        <div className="p-6">
-                            <h3 className="text-xl font-semibold mb-2">{doctor.name}</h3>
-                            <p className="text-primary font-medium mb-2">{doctor.specialization}</p>
-                            <p className="text-gray-600 text-sm mb-4">{doctor.description}</p>
-                            <div className="space-y-2 text-sm text-gray-600 mb-6">
-                                <p>✓ {doctor.experience} experience</p>
-                                <p>✓ {doctor.education}</p>
-                                <p>✓ Available: {doctor.availability}</p>
-                            </div>
-                            {/*<button*/}
-                            {/*    onClick={() => navigate('/consultation')}*/}
-                            {/*    className="w-full bg-primary text-white py-2 rounded-lg hover:bg-primaryHover transition-colors flex items-center justify-center space-x-2"*/}
-                            {/*>*/}
-                            {/*    <MessageSquare size={20} />*/}
-                            {/*    <span>Consult Online</span>*/}
-                            {/*</button>*/}
                         </div>
                     </div>
                 ))}

@@ -1,355 +1,255 @@
-
-import  React,{useState, useRef} from 'react';
-import {Link, useNavigate} from 'react-router-dom';
-import {Mail, Lock, ArrowRight, PawPrint, ArrowLeft, Send, KeyRound} from 'lucide-react';
+import React, { useState } from 'react';
+import { Phone, Lock, PawPrint, Heart, Shield } from 'lucide-react';
+import {Link, useLocation} from "react-router-dom";
 import {useAppContext} from "../context/AppContext.tsx";
-import AuthService from "../services/auth/AuthService.ts";
-
-
-type FormState = 'login' | 'forgot' | 'otp' | 'reset';
-
-
 
 function Login() {
-    const {user,setUser} = useAppContext();
-    const navigate = useNavigate();
-
-    const [formState, setFormState] = useState<FormState>('login');
     const [formData, setFormData] = useState({
-        email: '',
+        mobile: '',
         password: '',
-        otp: ['', '', '', ''],
-        newPassword: '',
-        confirmPassword: '',
     });
 
-    const authService = AuthService();
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState('');
+    const {user, setUser} = useAppContext();
+    const location = useLocation();
 
-    // Refs for OTP inputs
-    const otpRefs = [
-        useRef<HTMLInputElement>(null),
-        useRef<HTMLInputElement>(null),
-        useRef<HTMLInputElement>(null),
-        useRef<HTMLInputElement>(null),
-    ];
-
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Handle login logic here
-        authService.login({email:formData.email, password:formData.password}).then(response => {
-            if (response.status === 200 && response.data) {
-                console.log(response.data);
-                setUser(response.data.data.user);
-                navigate('/');
+        setIsLoading(true);
+        setError('');
+
+        // Simulate API call
+        setTimeout(() => {
+            if (formData.mobile && formData.password) {
+                console.log('Login successful');
+                setUser({
+                    name:'Test User',
+                    mobile:'077-5184848',
+                    role:'PetOwner'
+                })
+                location.pathname = '/dashboard';
             } else {
-                throw Error("Invalid Credentials");
+                setError('Invalid mobile number or password. Please try again.');
             }
-        }).catch(error => {
-            console.log(error);
-        });
+            setIsLoading(false);
+        }, 1500);
     };
 
-    const handleForgotSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        setFormState('otp');
-    };
+    const formatMobileNumber = (value) => {
+        const numbers = value.replace(/\D/g, '');
 
-    const handleOTPSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        setFormState('reset');
-    };
-
-    const handleResetSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        // Handle password reset logic here
-        console.log('Password reset:', formData);
-        setFormState('login');
-        setFormData({...formData, newPassword: '', confirmPassword: '', otp: ['', '', '', '']});
-    };
-
-    const handleOTPChange = (index: number, value: string) => {
-        if (value.length <= 1) {
-            const newOTP = [...formData.otp];
-            newOTP[index] = value;
-            setFormData({...formData, otp: newOTP});
-
-            // Move to next input if value is entered
-            if (value !== '' && index < 3) {
-                otpRefs[index + 1].current?.focus();
-            }
+        if (numbers.length <= 2) {
+            return numbers;
+        } else if (numbers.length <= 5) {
+            return `${numbers.slice(0, 2)} ${numbers.slice(2)}`;
+        } else if (numbers.length <= 8) {
+            return `${numbers.slice(0, 2)} ${numbers.slice(2, 5)} ${numbers.slice(5)}`;
+        } else {
+            return `${numbers.slice(0, 2)} ${numbers.slice(2, 5)} ${numbers.slice(5, 9)}`;
         }
     };
 
-    const handleOTPKeyDown = (index: number, e: React.KeyboardEvent) => {
-        if (e.key === 'Backspace' && formData.otp[index] === '' && index > 0) {
-            otpRefs[index - 1].current?.focus();
-        }
+    const handleMobileChange = (e) => {
+        const value = e.target.value;
+        const formatted = formatMobileNumber(value);
+        setFormData({ ...formData, mobile: formatted });
     };
-
-    const renderLoginForm = () => (
-        <>
-            <div className="text-center mb-8">
-                <PawPrint size={48} className="text-[#01818E] mx-auto mb-4"/>
-                <h2 className="text-3xl font-bold text-gray-900">Welcome Back</h2>
-                <p className="mt-2 text-gray-600">
-                    Sign in to continue managing your pets' care
-                </p>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-6">
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Email Address
-                    </label>
-                    <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20}/>
-                        <input
-                            type="email"
-                            value={formData.email}
-                            onChange={(e) => setFormData({...formData, email: e.target.value})}
-                            className="pl-10 w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#01818E]"
-                            placeholder="john@example.com"
-                            required
-                        />
-                    </div>
-                </div>
-
-                <div>
-                    <div className="flex justify-between items-center mb-1">
-                        <label className="block text-sm font-medium text-gray-700">
-                            Password
-                        </label>
-                        <button
-                            type="button"
-                            onClick={() => setFormState('forgot')}
-                            className="text-sm text-[#01818E] hover:text-[#016d77]"
-                        >
-                            Forgot password?
-                        </button>
-                    </div>
-                    <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20}/>
-                        <input
-                            type="password"
-                            value={formData.password}
-                            onChange={(e) => setFormData({...formData, password: e.target.value})}
-                            className="pl-10 w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#01818E]"
-                            placeholder="••••••••"
-                            required
-                        />
-                    </div>
-                </div>
-
-                <button
-                    type="submit"
-                    className="w-full bg-[#01818E] text-white p-3 rounded-lg hover:bg-[#016d77] transition-colors flex items-center justify-center space-x-2 group"
-                >
-                    <span>Log In</span>
-                </button>
-
-                <p className="text-center text-gray-600">
-                    Don't have an account?{' '}
-                    <Link to="/signup" className="text-[#01818E] hover:text-[#016d77] font-medium">
-                        Register here
-                    </Link>
-                </p>
-            </form>
-        </>
-    );
-
-    const renderForgotForm = () => (
-        <>
-            <button
-                onClick={() => setFormState('login')}
-                className="mb-8 text-[#01818E] hover:text-[#016d77] flex items-center"
-            >
-                <ArrowLeft size={20} className="mr-2"/>
-                Back to Login
-            </button>
-
-            <div className="text-center mb-8">
-                <KeyRound size={48} className="text-[#01818E] mx-auto mb-4"/>
-                <h2 className="text-3xl font-bold text-gray-900">Forgot Password?</h2>
-                <p className="mt-2 text-gray-600">
-                    Enter your email address to receive a verification code
-                </p>
-            </div>
-
-            <form onSubmit={handleForgotSubmit} className="space-y-6">
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Email Address
-                    </label>
-                    <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20}/>
-                        <input
-                            type="email"
-                            value={formData.email}
-                            onChange={(e) => setFormData({...formData, email: e.target.value})}
-                            className="pl-10 w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#01818E]"
-                            placeholder="john@example.com"
-                            required
-                        />
-                    </div>
-                </div>
-
-                <button
-                    type="submit"
-                    className="w-full bg-[#01818E] text-white p-3 rounded-lg hover:bg-[#016d77] transition-colors flex items-center justify-center space-x-2 group"
-                >
-                    <span>Send Code</span>
-                    <Send size={20} className="group-hover:translate-x-1 transition-transform"/>
-                </button>
-            </form>
-        </>
-    );
-
-    const renderOTPForm = () => (
-        <>
-            <button
-                onClick={() => setFormState('forgot')}
-                className="mb-8 text-[#01818E] hover:text-[#016d77] flex items-center"
-            >
-                <ArrowLeft size={20} className="mr-2"/>
-                Back
-            </button>
-
-            <div className="text-center mb-8">
-                <KeyRound size={48} className="text-[#01818E] mx-auto mb-4"/>
-                <h2 className="text-3xl font-bold text-gray-900">Enter OTP</h2>
-                <p className="mt-2 text-gray-600">
-                    We've sent a code to {formData.email}
-                </p>
-            </div>
-
-            <form onSubmit={handleOTPSubmit} className="space-y-6">
-                <div className="flex justify-center space-x-4">
-                    {[0, 1, 2, 3].map((index) => (
-                        <input
-                            key={index}
-                            ref={otpRefs[index]}
-                            type="text"
-                            maxLength={1}
-                            value={formData.otp[index]}
-                            onChange={(e) => handleOTPChange(index, e.target.value)}
-                            onKeyDown={(e) => handleOTPKeyDown(index, e)}
-                            className="w-14 h-14 text-center text-2xl border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#01818E]"
-                            required
-                        />
-                    ))}
-                </div>
-
-                <button
-                    type="submit"
-                    className="w-full bg-[#01818E] text-white p-3 rounded-lg hover:bg-[#016d77] transition-colors"
-                >
-                    Verify Code
-                </button>
-            </form>
-        </>
-    );
-
-    const renderResetForm = () => (
-        <>
-            <button
-                onClick={() => setFormState('otp')}
-                className="mb-8 text-[#01818E] hover:text-[#016d77] flex items-center"
-            >
-                <ArrowLeft size={20} className="mr-2"/>
-                Back
-            </button>
-
-            <div className="text-center mb-8">
-                <Lock size={48} className="text-[#01818E] mx-auto mb-4"/>
-                <h2 className="text-3xl font-bold text-gray-900">Reset Password</h2>
-                <p className="mt-2 text-gray-600">
-                    Create a new password for your account
-                </p>
-            </div>
-
-            <form onSubmit={handleResetSubmit} className="space-y-6">
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                        New Password
-                    </label>
-                    <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20}/>
-                        <input
-                            type="password"
-                            value={formData.newPassword}
-                            onChange={(e) => setFormData({...formData, newPassword: e.target.value})}
-                            className="pl-10 w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#01818E]"
-                            placeholder="••••••••"
-                            required
-                        />
-                    </div>
-                </div>
-
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Confirm Password
-                    </label>
-                    <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20}/>
-                        <input
-                            type="password"
-                            value={formData.confirmPassword}
-                            onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
-                            className="pl-10 w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#01818E]"
-                            placeholder="••••••••"
-                            required
-                        />
-                    </div>
-                </div>
-
-                <button
-                    type="submit"
-                    className="w-full bg-[#01818E] text-white p-3 rounded-lg hover:bg-[#016d77] transition-colors"
-                >
-                    Reset Password
-                </button>
-            </form>
-        </>
-    );
 
     return (
-        <div className="min-h-full grid md:grid-cols-2 bg-white rounded-lg">
-            {/* Left Side - Form */}
-            <div className="flex items-center justify-center p-8">
-                <div className="w-full max-w-md">
-                    {formState === 'login' && renderLoginForm()}
-                    {formState === 'forgot' && renderForgotForm()}
-                    {formState === 'otp' && renderOTPForm()}
-                    {formState === 'reset' && renderResetForm()}
+            <div className="h-full flex bg-gradient-to-br from-slate-50 to-blue-50 overflow-hidden mt-20">
+                {/* Left Side - Form Container */}
+                <div className="flex-1 flex items-center justify-center p-4 lg:p-8 h-[45rem]">
+                    <div className="w-full max-w-md  flex flex-col ">
+                        {/* Header */}
+                        <div className="text-center mb-6 flex-shrink-0">
+                            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-[#01818E] to-[#20B2AA] rounded-full mb-4">
+                                <PawPrint size={32} className="text-white" />
+                            </div>
+                            <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">Welcome Back</h2>
+                            <p className="text-gray-600 text-sm lg:text-base">
+                                Sign in to continue your pet care journey
+                            </p>
+                        </div>
+
+                        {/* Form Container */}
+                        <div className="flex-1 rounded-2xl  overflow-hidden flex flex-col  ">
+                        <div className="bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col">
+                            {/* Error Message */}
+                            {error && (
+                                <div className="m-6 mb-0 p-4 bg-red-50 border border-red-200 rounded-lg">
+                                    <p className="text-sm text-red-600">{error}</p>
+                                </div>
+                            )}
+
+                            {/* Form Content */}
+                            <div className="p-6">
+                                <div className="space-y-5">
+                                    {/* Mobile Number */}
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                            Mobile Number
+                                        </label>
+                                        <div className="relative">
+                                            <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center pointer-events-none z-10">
+                                                <Phone className="text-gray-400 mr-2" size={18} />
+                                                <span className="text-gray-500 text-sm">+94</span>
+                                            </div>
+                                            <input
+                                                type="tel"
+                                                value={formData.mobile}
+                                                onChange={handleMobileChange}
+                                                className="pl-20 w-full p-3 lg:p-4 lg:pl-16 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#01818E] focus:border-transparent transition-all duration-200 text-sm lg:text-base"
+                                                placeholder="77 123 4567"
+                                                required
+                                                maxLength={12}
+                                            />
+                                        </div>
+                                        <p className="text-xs text-gray-500 mt-1">Enter your mobile number without +94</p>
+                                    </div>
+
+                                    {/* Password */}
+                                    <div>
+                                        <div className="flex justify-between items-center mb-2">
+                                            <label className="block text-sm font-semibold text-gray-700">
+                                                Password
+                                            </label>
+                                            <button
+                                                type="button"
+                                                className="text-sm text-[#01818E] hover:text-[#016d77]  font-medium transition-colors hover:underline"
+                                                onClick={() => console.log('Navigate to forgot password')}
+                                            >
+                                                Forgot password?
+                                            </button>
+                                        </div>
+                                        <div className="relative">
+                                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10" size={18} />
+                                            <input
+                                                type="password"
+                                                value={formData.password}
+                                                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                                className="pl-12 w-full p-3 lg:p-4 lg:pl-10 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#01818E] focus:border-transparent transition-all duration-200 text-sm lg:text-base"
+                                                placeholder="Enter your password"
+                                                required
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Submit Button */}
+                                    <div className="pt-2">
+                                        <button
+                                            type="button"
+                                            disabled={isLoading}
+                                            onClick={handleSubmit}
+                                            className="w-full bg-gradient-to-r from-[#01818E] to-[#20B2AA] text-white p-3 lg:p-4 rounded-xl hover:from-[#016d77] hover:to-[#1a9a95] transition-all duration-200 font-semibold disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98] text-sm lg:text-base"
+                                        >
+                                            {isLoading ? (
+                                                <div className="flex items-center justify-center">
+                                                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                                    Signing in...
+                                                </div>
+                                            ) : (
+                                                <span className="flex items-center justify-center">
+                                                <Shield size={18} className="mr-2" />
+                                                Sign In Securely
+                                            </span>
+                                            )}
+                                        </button>
+                                    </div>
+
+                                    {/* Sign Up Link */}
+                                    <div className="text-center pt-2">
+                                        <p className="text-gray-600 text-sm">
+                                            Don't have an account?{' '}
+                                            <Link to="/signup" className="text-[#01818E] hover:text-[#016d77] font-semibold transition-colors cursor-pointer">
+                                                Create account
+                                            </Link>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
 
+                {/* Right Side - Professional Image with Gradient */}
+                <div className="hidden lg:flex flex-1 relative overflow-hidden">
+                    <div className="relative w-full h-full">
+                        {/* Background Image */}
+                        <img
+                            className="absolute inset-0 object-cover w-full h-full"
+                            src="https://images.unsplash.com/photo-1576201836106-db1758fd1c97?auto=format&fit=crop&q=80&w=2000&h=2000"
+                            alt="Veterinary Care - Happy pets with veterinarian"
+                        />
 
-            <div className="hidden md:block relative bg-[#01818E]">
-                <div className="absolute inset-0 bg-[#01818E] mix-blend-multiply"></div>
-                <img
-                src="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&q=80&w=2000&h=2000"
-                alt="Veterinary Care"
-                className="object-cover w-full h-full mix-blend-overlay"
-            />
-                <div className="absolute inset-0 flex flex-col items-center justify-center p-12">
-                    <div className="max-w-xl text-center  text-white">
-                        <h1 className="text-4xl font-bold text-right mb-4 ">
-                            Dr.AshanLanka
-                        </h1>
-                        <h1 className="text-4xl font-bold text-right mb-4">
-                            <span className={"text-primary"}>Veterinary</span> Hospital
-                        </h1>
-                        {/*<p className="text-3xl font-light text-white/90 mb-2">*/}
-                        {/*    Veterinary Hospital*/}
-                        {/*</p>*/}
-                        <p className="text-sm text-right max-w-md text-white/50 ">
-                            Join our community of pet owners and provide the best care for your beloved companions
-                        </p>
+                        {/* Main Gradient Overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-[#01818E]/90 via-[#20B2AA]/80 to-[#01818E]/95"></div>
+
+                        {/* Secondary Gradient for Depth */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/70 to-transparent"></div>
+
+                        {/* Content Container */}
+                        <div className="relative z-10 flex flex-col justify-center items-center w-full h-full px-12">
+                            <div className="flex-1 flex flex-col justify-center items-center space-y-12">
+                                {/* Logo Container */}
+                                <div className="w-20 h-20 bg-white/10 backdrop-blur-sm rounded-3xl flex items-center justify-center border border-white/20 shadow-2xl">
+                                    <PawPrint size={32} className="text-white" />
+                                </div>
+
+                                {/* Main Content */}
+                                <div className="text-center space-y-6">
+                                    <h1 className="text-3xl font-bold text-white tracking-wide leading-tight">
+                                        Dr.AshanLanka
+                                        <span className="block text-4xl font-light text-white/90 mt-2">
+                                        Veterinary Hospital
+                                    </span>
+                                    </h1>
+                                    <div className="w-20 h-px bg-white/40 mx-auto"></div>
+                                    <p className="text-white/80 text-sm max-w-md leading-relaxed">
+                                        Providing compassionate care for your beloved companions with advanced medical expertise
+                                    </p>
+                                </div>
+
+                                {/* Feature highlights */}
+                                <div className="flex justify-center space-x-8 text-sm">
+                                    <div className="text-center">
+                                        <div className="w-12 h-12 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center mb-3 mx-auto border border-white/20">
+                                            <PawPrint size={20} className="text-white" />
+                                        </div>
+                                        <span className="text-white/80 font-s">Expert Care</span>
+                                    </div>
+                                    <div className="text-center">
+                                        <div className="w-12 h-12 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center mb-3 mx-auto border border-white/20">
+                                            <Heart size={20} className="text-white" />
+                                        </div>
+                                        <span className="text-white/80 font-s">With Love</span>
+                                    </div>
+                                    <div className="text-center">
+                                        <div className="w-12 h-12 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center mb-3 mx-auto border border-white/20">
+                                            <Shield size={20} className="text-white" />
+                                        </div>
+                                        <span className="text-white/80 font-s">24/7 Support</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Footer */}
+                            <div className="w-full h-20 flex justify-center items-center">
+                            <span className="text-white/60 text-xs tracking-widest font-medium">
+                                TRUSTED • PROFESSIONAL • CARING
+                            </span>
+                            </div>
+                        </div>
+
+                        {/* Decorative Elements */}
+                        <div className="absolute bottom-32 right-8 w-px h-16 bg-gradient-to-t from-transparent via-white/30 to-transparent"></div>
+                        <div className="absolute top-32 left-8 w-px h-16 bg-gradient-to-b from-transparent via-white/20 to-transparent"></div>
                     </div>
                 </div>
             </div>
-        </div>
+
+
     );
 }
 

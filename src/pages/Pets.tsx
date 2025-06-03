@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { Trash2, ArrowRight, Activity, Syringe, Stethoscope, Plus } from 'lucide-react';
-import DialogBox from '../components/DialogBox';
+import { Trash2, ArrowRight, Activity, Syringe, Stethoscope, Plus, ArrowLeft, Heart, Calendar, User, Weight, MapPin, AlertTriangle } from 'lucide-react';
 
 interface Pet {
   id: number;
@@ -48,7 +47,7 @@ interface NewPet {
   age: string;
   weight: string;
   image: string;
-  gender:string;
+  gender: string;
   allergies: string;
 }
 
@@ -57,12 +56,12 @@ function Pets() {
   const [isAddPetDialogOpen, setIsAddPetDialogOpen] = useState(false);
   const [newPet, setNewPet] = useState<NewPet>({
     name: '',
-    type: '',
+    type: 'dog',
     breed: '',
     age: '',
     weight: '',
     image: '',
-    gender: '',
+    gender: 'male',
     allergies: '',
   });
 
@@ -154,18 +153,14 @@ function Pets() {
   ];
 
   const handleDelete = (petId: number) => {
-    // Implement delete functionality
     console.log('Delete pet:', petId);
   };
 
   const handleAddPet = () => {
-    // Validate form
     if (!newPet.name || !newPet.breed || !newPet.age || !newPet.weight) {
       alert('Please fill in all required fields');
       return;
     }
-
-    // Add pet logic here
     console.log('New pet:', newPet);
     setIsAddPetDialogOpen(false);
     setNewPet({
@@ -180,110 +175,154 @@ function Pets() {
     });
   };
 
-  const PetProfile = ({ pet }: { pet: Pet }) => (
-      <div className="space-y-6">
-        <button
-            onClick={() => setSelectedPet(null)}
-            className="text-[#01818E] hover:text-[#016d77] flex items-center mb-4"
-        >
-          ← Back to Pets
-        </button>
+  const getGenderIcon = (gender: string) => {
+    return gender === 'male' ? '♂' : '♀';
+  };
 
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="grid md:grid-cols-2 gap-6">
-            <img
-                src={pet.image}
-                alt={pet.name}
-                // className="w-full h-[400px] object-cover rounded-lg"
-                className="w-full  rounded-lg  "
-            />
-            <div className="space-y-4 ">
-              <h2 className="text-3xl font-bold text-[#000000]">{pet.name}</h2>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-gray-600">Type</p>
-                  <p className="font-semibold">{pet.type}</p>
+  const getGenderColor = (gender: string) => {
+    return gender === 'male' ? 'text-blue-600 bg-blue-50' : 'text-pink-600 bg-pink-50';
+  };
+
+  const PetProfile = ({ pet }: { pet: Pet }) => (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+        <div className="max-w-7xl mx-auto p-4 lg:p-8 space-y-8">
+          <button
+              onClick={() => setSelectedPet(null)}
+              className="group flex items-center space-x-2 text-teal-600 hover:text-teal-700 hover:bg-teal-50 px-4 py-2 rounded-xl transition-all duration-300"
+          >
+            <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform duration-300" />
+            <span className="font-semibold">Back to Pets</span>
+          </button>
+
+          {/* Pet Header Card */}
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8">
+            <div className="grid lg:grid-cols-2 gap-8">
+              <div className="relative">
+                <img
+                    src={pet.image}
+                    alt={pet.name}
+                    className="w-full h-96 object-cover rounded-2xl shadow-lg"
+                />
+                <div className="absolute top-4 right-4 flex space-x-2">
+                <span className={`px-3 py-1 rounded-full text-sm font-semibold ${getGenderColor(pet.gender)}`}>
+                  {getGenderIcon(pet.gender)} {pet.gender}
+                </span>
                 </div>
+              </div>
+              <div className="space-y-6">
                 <div>
-                  <p className="text-gray-600">Breed</p>
-                  <p className="font-semibold">{pet.breed}</p>
+                  <h1 className="text-4xl font-bold text-slate-800 mb-2">{pet.name}</h1>
+                  <p className="text-xl text-slate-600">{pet.breed} • {pet.type}</p>
                 </div>
-                <div>
-                  <p className="text-gray-600">Age</p>
-                  <p className="font-semibold">{pet.age}</p>
+
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="bg-slate-50/50 rounded-xl p-4">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <Calendar className="w-5 h-5 text-slate-600" />
+                      <p className="text-slate-600 font-medium">Age</p>
+                    </div>
+                    <p className="text-xl font-bold text-slate-800">{pet.age}</p>
+                  </div>
+                  <div className="bg-slate-50/50 rounded-xl p-4">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <Weight className="w-5 h-5 text-slate-600" />
+                      <p className="text-slate-600 font-medium">Weight</p>
+                    </div>
+                    <p className="text-xl font-bold text-slate-800">{pet.weight}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-gray-600">Weight</p>
-                  <p className="font-semibold">{pet.weight}</p>
-                </div>
-                <div>
-                  <p className="text-gray-600">Gender</p>
-                  <p className="font-semibold capitalize">{pet.gender}</p>
-                </div>
-                <div>
-                  <p className="text-gray-600">Allergies</p>
-                  <p className="font-semibold">{pet.allergies || 'None'}</p>
-                </div>
+
+                {pet.allergies && pet.allergies !== 'None' && (
+                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <AlertTriangle className="w-5 h-5 text-amber-600" />
+                        <p className="text-amber-800 font-semibold">Allergies</p>
+                      </div>
+                      <p className="text-amber-700">{pet.allergies}</p>
+                    </div>
+                )}
               </div>
             </div>
           </div>
-        </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Medical Reports */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-semibold text-[#01818E]">Medical Reports</h3>
-              <Activity className="text-[#01818E]" />
-            </div>
-            <div className="space-y-4">
-              {pet.medicalReports.map((report) => (
-                  <button
-                      key={report.id}
-                      className="w-full text-left p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                  >
-                    <p className="font-semibold">{report.diagnosis}</p>
-                    <p className="text-sm text-gray-600">{report.date}</p>
-                  </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Surgeries */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-semibold text-[#01818E]">Surgery History</h3>
-              <Stethoscope className="text-[#01818E]" />
-            </div>
-            <div className="space-y-4">
-              {pet.surgeries.length > 0 ? (
-                  pet.surgeries.map((surgery) => (
-                      <div key={surgery.id} className="p-4 bg-gray-50 rounded-lg">
-                        <p className="font-semibold">{surgery.procedure}</p>
-                        <p className="text-sm text-gray-600">{surgery.date}</p>
-                        <p className="text-sm text-gray-600">By {surgery.surgeon}</p>
+          {/* Medical Information Grid */}
+          <div className="grid lg:grid-cols-3 gap-8">
+            {/* Medical Reports */}
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6">
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="p-2 bg-emerald-50 rounded-xl">
+                  <Activity className="w-6 h-6 text-emerald-600" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-800">Medical Reports</h3>
+              </div>
+              <div className="space-y-4">
+                {pet.medicalReports.map((report) => (
+                    <div
+                        key={report.id}
+                        className="group bg-slate-50/50 hover:bg-white rounded-xl p-4 border border-slate-200/50 hover:border-emerald-200 hover:shadow-md transition-all duration-300 cursor-pointer"
+                    >
+                      <h4 className="font-bold text-slate-800 mb-2">{report.diagnosis}</h4>
+                      <p className="text-sm text-slate-600 mb-1">{report.treatment}</p>
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs text-slate-500">{report.date}</span>
+                        {report.nextVisit && (
+                            <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full">
+                        Next: {report.nextVisit}
+                      </span>
+                        )}
                       </div>
-                  ))
-              ) : (
-                  <p className="text-gray-600">No surgery history</p>
-              )}
+                    </div>
+                ))}
+              </div>
             </div>
-          </div>
 
-          {/* Vaccinations */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-semibold text-[#01818E]">Vaccinations</h3>
-              <Syringe className="text-[#01818E]" />
+            {/* Surgery History */}
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6">
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="p-2 bg-blue-50 rounded-xl">
+                  <Stethoscope className="w-6 h-6 text-blue-600" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-800">Surgery History</h3>
+              </div>
+              <div className="space-y-4">
+                {pet.surgeries.length > 0 ? (
+                    pet.surgeries.map((surgery) => (
+                        <div key={surgery.id} className="bg-slate-50/50 rounded-xl p-4 border border-slate-200/50">
+                          <h4 className="font-bold text-slate-800 mb-2">{surgery.procedure}</h4>
+                          <p className="text-sm text-slate-600 mb-1">By {surgery.surgeon}</p>
+                          <p className="text-sm text-slate-600 mb-2">{surgery.notes}</p>
+                          <span className="text-xs text-slate-500">{surgery.date}</span>
+                        </div>
+                    ))
+                ) : (
+                    <div className="text-center py-8">
+                      <Stethoscope className="w-12 h-12 text-slate-300 mx-auto mb-2" />
+                      <p className="text-slate-500">No surgery history</p>
+                    </div>
+                )}
+              </div>
             </div>
-            <div className="space-y-4">
-              {pet.vaccinations.map((vaccination) => (
-                  <div key={vaccination.id} className="p-4 bg-gray-50 rounded-lg">
-                    <p className="font-semibold">{vaccination.name}</p>
-                    <p className="text-sm text-gray-600">Given: {vaccination.date}</p>
-                    <p className="text-sm text-gray-600">Next due: {vaccination.nextDue}</p>
-                  </div>
-              ))}
+
+            {/* Vaccinations */}
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6">
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="p-2 bg-purple-50 rounded-xl">
+                  <Syringe className="w-6 h-6 text-purple-600" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-800">Vaccinations</h3>
+              </div>
+              <div className="space-y-4">
+                {pet.vaccinations.map((vaccination) => (
+                    <div key={vaccination.id} className="bg-slate-50/50 rounded-xl p-4 border border-slate-200/50">
+                      <h4 className="font-bold text-slate-800 mb-2">{vaccination.name}</h4>
+                      <p className="text-sm text-slate-600 mb-1">Given: {vaccination.date}</p>
+                      <p className="text-sm text-slate-600 mb-2">By {vaccination.veterinarian}</p>
+                      <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full">
+                    Next due: {vaccination.nextDue}
+                  </span>
+                    </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -291,206 +330,253 @@ function Pets() {
   );
 
   const PetsList = () => (
-      <div>
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-[#000000]">My Pets</h1>
-          <button
-              onClick={() => setIsAddPetDialogOpen(true)}
-              className="bg-[#01818E] text-white px-4 py-2 rounded-lg hover:bg-[#016d77] transition-colors flex items-center space-x-2"
-          >
-            <Plus size={20} />
-            <span>Add Pet</span>
-          </button>
-        </div>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {pets.map((pet) => (
-              <div key={pet.id} className="bg-white rounded-lg shadow-md overflow-hidden">
-                <img
-                    src={pet.image}
-                    alt={pet.name}
-                    className="w-full h-48 object-cover"
-                />
-                <div className="p-6">
-                  <h2 className="text-xl font-semibold mb-2">{pet.name}</h2>
-                  <div className="space-y-2 mb-4">
-                    <p className="text-gray-600">
-                      <span className="font-medium">Type:</span> {pet.type}
-                    </p>
-                    <p className="text-gray-600">
-                      <span className="font-medium">Breed:</span> {pet.breed}
-                    </p>
-                    <p className="text-gray-600">
-                      <span className="font-medium">Age:</span> {pet.age}
-                    </p>
-                    <p className="text-gray-600">
-                      <span className="font-medium">Weight:</span> {pet.weight}
-                    </p>
-                  </div>
-                  <div className="flex justify-between">
-                    <button
-                        onClick={() => handleDelete(pet.id)}
-                        className="text-red-500 hover:text-red-700 flex items-center"
-                    >
-                      <Trash2 size={20} className="mr-1" />
-                      Delete
-                    </button>
-                    <button
-                        onClick={() => setSelectedPet(pet)}
-                        className="text-[#01818E] hover:text-[#016d77] flex items-center"
-                    >
-                      Profile
-                      <ArrowRight size={20} className="ml-1" />
-                    </button>
-                  </div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+        <div className="max-w-7xl mx-auto p-4 lg:p-8 space-y-8">
+          {/* Header */}
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+              <div className="flex items-center space-x-4">
+                <div className="p-3 bg-rose-50 rounded-2xl">
+                  <Heart className="w-8 h-8 text-rose-600" />
+                </div>
+                <div>
+                  <h1 className="text-4xl font-bold text-slate-800">My Pets</h1>
+                  <p className="text-slate-600 text-lg">Manage your beloved companions</p>
                 </div>
               </div>
-          ))}
-        </div>
-
-        {/* Add Pet Dialog */}
-        <DialogBox
-            isOpen={isAddPetDialogOpen}
-            onClose={() => setIsAddPetDialogOpen(false)}
-            title="Add New Pet"
-        >
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Pet Name *
-              </label>
-              <input
-                  type="text"
-                  // value={newPet.name}
-                  // onChange={(e) => setNewPet({ ...newPet, name: e.target.value })}
-                  className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#01818E]"
-                  placeholder="Enter pet name"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Type *
-                </label>
-                <select
-                    value={newPet.type}
-                    onChange={(e) => setNewPet({ ...newPet, type: e.target.value })}
-                    className="w-full bg-white p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#01818E]"
-                >
-                  {petTypes.map((type) => (
-                      <option key={type} value={type}>
-                        {type.charAt(0).toUpperCase() + type.slice(1)}
-                      </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Gender *
-                </label>
-                <select
-                    value={newPet.gender}
-                    onChange={(e) => setNewPet({ ...newPet, gender: e.target.value as 'male' | 'female' })}
-                    className="w-full bg-white p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#01818E]"
-                >
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
-                </select>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Breed *
-              </label>
-              <input
-                  type="text"
-                  value={newPet.breed}
-                  onChange={(e) => setNewPet({ ...newPet, breed: e.target.value })}
-                  className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#01818E]"
-                  placeholder="Enter breed"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Age *
-                </label>
-                <input
-                    type="text"
-                    value={newPet.age}
-                    onChange={(e) => setNewPet({ ...newPet, age: e.target.value })}
-                    className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#01818E]"
-                    placeholder="e.g., 2 years"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Weight *
-                </label>
-                <input
-                    type="text"
-                    value={newPet.weight}
-                    onChange={(e) => setNewPet({ ...newPet, weight: e.target.value })}
-                    className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#01818E]"
-                    placeholder="e.g., 5 kg"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Image URL
-              </label>
-              <input
-                  type="text"
-                  value={newPet.image}
-                  onChange={(e) => setNewPet({ ...newPet, image: e.target.value })}
-                  className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#01818E]"
-                  placeholder="Enter image URL"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Allergies
-              </label>
-              <textarea
-                  value={newPet.allergies}
-                  onChange={(e) => setNewPet({ ...newPet, allergies: e.target.value })}
-                  className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#01818E]"
-                  placeholder="List any allergies"
-                  rows={3}
-              />
-            </div>
-
-            <div className="flex justify-end space-x-3 mt-6">
               <button
-                  onClick={() => setIsAddPetDialogOpen(false)}
-                  className="px-4 py-2 border rounded-lg hover:bg-gray-50"
+                  onClick={() => setIsAddPetDialogOpen(true)}
+                  className="group bg-gradient-to-r from-teal-600 to-blue-600 text-white px-6 py-3 rounded-xl hover:from-teal-700 hover:to-blue-700 transition-all duration-300 flex items-center space-x-2 shadow-lg hover:shadow-xl"
               >
-                Cancel
-              </button>
-              <button
-                  onClick={handleAddPet}
-                  className="px-4 py-2 bg-[#01818E] text-white rounded-lg hover:bg-[#016d77]"
-              >
-                Add Pet
+                <Plus size={20} className="group-hover:rotate-180 transition-transform duration-300" />
+                <span className="font-semibold">Add New Pet</span>
               </button>
             </div>
           </div>
-        </DialogBox>
+
+          {/* Pets Grid */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {pets.map((pet) => (
+                <div key={pet.id} className="group bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 overflow-hidden hover:shadow-xl transition-all duration-300">
+                  <div className="relative">
+                    <img
+                        src={pet.image}
+                        alt={pet.name}
+                        className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute top-4 right-4">
+                  <span className={`px-3 py-1 rounded-full text-sm font-semibold ${getGenderColor(pet.gender)}`}>
+                    {getGenderIcon(pet.gender)}
+                  </span>
+                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  </div>
+
+                  <div className="p-6 space-y-4">
+                    <div>
+                      <h2 className="text-2xl font-bold text-slate-800 mb-1">{pet.name}</h2>
+                      <p className="text-slate-600 font-medium">{pet.breed}</p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-slate-50/50 rounded-lg p-3">
+                        <p className="text-xs text-slate-500 mb-1">Type</p>
+                        <p className="font-semibold text-slate-800">{pet.type}</p>
+                      </div>
+                      <div className="bg-slate-50/50 rounded-lg p-3">
+                        <p className="text-xs text-slate-500 mb-1">Age</p>
+                        <p className="font-semibold text-slate-800">{pet.age}</p>
+                      </div>
+                    </div>
+
+                    <div className="bg-slate-50/50 rounded-lg p-3">
+                      <p className="text-xs text-slate-500 mb-1">Weight</p>
+                      <p className="font-semibold text-slate-800">{pet.weight}</p>
+                    </div>
+
+                    {pet.allergies && pet.allergies !== 'None' && (
+                        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                          <div className="flex items-center space-x-1">
+                            <AlertTriangle className="w-4 h-4 text-amber-600" />
+                            <p className="text-xs text-amber-700 font-medium">Allergies: {pet.allergies}</p>
+                          </div>
+                        </div>
+                    )}
+
+                    <div className="flex justify-between pt-4 border-t border-slate-200/50">
+                      <button
+                          onClick={() => handleDelete(pet.id)}
+                          className="group flex items-center space-x-2 text-red-500 hover:text-red-700 hover:bg-red-50 px-3 py-2 rounded-lg transition-all duration-300"
+                      >
+                        <Trash2 size={16} className="group-hover:scale-110 transition-transform duration-300" />
+                        <span className="text-sm font-medium">Delete</span>
+                      </button>
+                      <button
+                          onClick={() => setSelectedPet(pet)}
+                          className="group flex items-center space-x-2 text-teal-600 hover:text-teal-700 hover:bg-teal-50 px-3 py-2 rounded-lg transition-all duration-300"
+                      >
+                        <span className="text-sm font-medium">View Profile</span>
+                        <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform duration-300" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+            ))}
+          </div>
+
+          {/* Add Pet Dialog */}
+          {isAddPetDialogOpen && (
+              <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+                <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                  <div className="p-8">
+                    <div className="flex items-center justify-between mb-6">
+                      <h2 className="text-2xl font-bold text-slate-800">Add New Pet</h2>
+                      <button
+                          onClick={() => setIsAddPetDialogOpen(false)}
+                          className="p-2 hover:bg-slate-100 rounded-lg transition-colors duration-300"
+                      >
+                        ×
+                      </button>
+                    </div>
+
+                    <div className="space-y-6">
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-700 mb-2">
+                          Pet Name *
+                        </label>
+                        <input
+                            type="text"
+                            value={newPet.name}
+                            onChange={(e) => setNewPet({ ...newPet, name: e.target.value })}
+                            className="w-full p-4 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-300"
+                            placeholder="Enter pet name"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-6">
+                        <div>
+                          <label className="block text-sm font-semibold text-slate-700 mb-2">
+                            Type *
+                          </label>
+                          <select
+                              value={newPet.type}
+                              onChange={(e) => setNewPet({ ...newPet, type: e.target.value })}
+                              className="w-full p-4 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white transition-all duration-300"
+                          >
+                            {petTypes.map((type) => (
+                                <option key={type} value={type}>
+                                  {type.charAt(0).toUpperCase() + type.slice(1)}
+                                </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-semibold text-slate-700 mb-2">
+                            Gender *
+                          </label>
+                          <select
+                              value={newPet.gender}
+                              onChange={(e) => setNewPet({ ...newPet, gender: e.target.value })}
+                              className="w-full p-4 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white transition-all duration-300"
+                          >
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-700 mb-2">
+                          Breed *
+                        </label>
+                        <input
+                            type="text"
+                            value={newPet.breed}
+                            onChange={(e) => setNewPet({ ...newPet, breed: e.target.value })}
+                            className="w-full p-4 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-300"
+                            placeholder="Enter breed"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-6">
+                        <div>
+                          <label className="block text-sm font-semibold text-slate-700 mb-2">
+                            Age *
+                          </label>
+                          <input
+                              type="text"
+                              value={newPet.age}
+                              onChange={(e) => setNewPet({ ...newPet, age: e.target.value })}
+                              className="w-full p-4 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-300"
+                              placeholder="e.g., 2 years"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-semibold text-slate-700 mb-2">
+                            Weight *
+                          </label>
+                          <input
+                              type="text"
+                              value={newPet.weight}
+                              onChange={(e) => setNewPet({ ...newPet, weight: e.target.value })}
+                              className="w-full p-4 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-300"
+                              placeholder="e.g., 5 kg"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-700 mb-2">
+                          Image URL
+                        </label>
+                        <input
+                            type="text"
+                            value={newPet.image}
+                            onChange={(e) => setNewPet({ ...newPet, image: e.target.value })}
+                            className="w-full p-4 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-300"
+                            placeholder="Enter image URL"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-700 mb-2">
+                          Allergies
+                        </label>
+                        <textarea
+                            value={newPet.allergies}
+                            onChange={(e) => setNewPet({ ...newPet, allergies: e.target.value })}
+                            className="w-full p-4 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-300"
+                            placeholder="List any allergies"
+                            rows={3}
+                        />
+                      </div>
+
+                      <div className="flex justify-end space-x-4 pt-6 border-t border-slate-200">
+                        <button
+                            onClick={() => setIsAddPetDialogOpen(false)}
+                            className="px-6 py-3 border border-slate-300 text-slate-700 rounded-xl hover:bg-slate-50 transition-all duration-300 font-medium"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                            onClick={handleAddPet}
+                            className="px-6 py-3 bg-gradient-to-r from-teal-600 to-blue-600 text-white rounded-xl hover:from-teal-700 hover:to-blue-700 transition-all duration-300 font-medium shadow-lg"
+                        >
+                          Add Pet
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+          )}
+        </div>
       </div>
   );
 
-  return (
-      <div className="container mx-auto px-4">
-        {selectedPet ? <PetProfile pet={selectedPet} /> : <PetsList />}
-      </div>
-  );
+  return selectedPet ? <PetProfile pet={selectedPet} /> : <PetsList />;
 }
 
 export default Pets;
