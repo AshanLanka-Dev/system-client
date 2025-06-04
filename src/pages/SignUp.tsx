@@ -169,7 +169,7 @@ function SignUp() {
                                                 type="text"
                                                 value={formData.firstName}
                                                 onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                                                className="pl-10 w-full p-3 lg:p-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#01818E] focus:border-transparent transition-all duration-200 text-sm lg:text-base"
+                                                className="pl-10 w-full p-3 lg:p-4 lg:pl-10 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#01818E] focus:border-transparent transition-all duration-200 text-sm lg:text-base"
                                                 placeholder="John"
                                                 required
                                             />
@@ -185,7 +185,7 @@ function SignUp() {
                                                 type="text"
                                                 value={formData.lastName}
                                                 onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                                                className="pl-10 w-full p-3 lg:p-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#01818E] focus:border-transparent transition-all duration-200 text-sm lg:text-base"
+                                                className="pl-10 w-full p-3 lg:p-4 border lg:pl-10 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#01818E] focus:border-transparent transition-all duration-200 text-sm lg:text-base"
                                                 placeholder="Doe"
                                                 required
                                             />
@@ -207,7 +207,7 @@ function SignUp() {
                                             type="tel"
                                             value={formData.mobile}
                                             onChange={handleMobileChange}
-                                            className="pl-16 w-full p-3 lg:p-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#01818E] focus:border-transparent transition-all duration-200 text-sm lg:text-base"
+                                            className="pl-16 w-full p-3 lg:p-4 lg:pl-16 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#01818E] focus:border-transparent transition-all duration-200 text-sm lg:text-base"
                                             placeholder="77 123 4567"
                                             required
                                             maxLength={12}
@@ -227,7 +227,7 @@ function SignUp() {
                                             type={showPassword ? "text" : "password"}
                                             value={formData.password}
                                             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                                            className="pl-10 pr-12 w-full p-3 lg:p-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#01818E] focus:border-transparent transition-all duration-200 text-sm lg:text-base"
+                                            className="pl-10 pr-12 w-full p-3 lg:p-4 lg:pl-10 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#01818E] focus:border-transparent transition-all duration-200 text-sm lg:text-base"
                                             placeholder="Create password"
                                             required
                                         />
@@ -281,7 +281,7 @@ function SignUp() {
                                             type={showConfirmPassword ? "text" : "password"}
                                             value={formData.confirmPassword}
                                             onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                                            className="pl-10 pr-12 w-full p-3 lg:p-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#01818E] focus:border-transparent transition-all duration-200 text-sm lg:text-base"
+                                            className="pl-10 pr-12 w-full p-3 lg:p-4 lg:pl-10 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#01818E] focus:border-transparent transition-all duration-200 text-sm lg:text-base"
                                             placeholder="Confirm password"
                                             required
                                         />
